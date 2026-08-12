@@ -5,11 +5,12 @@ import {
   useState,
 } from 'react';
 
-import { Box } from '@mui/material';
+import {
+  loginApi,
+} from './api/authApi';
 
 import {
   DEFAULT_STYLE,
-  STEPS,
 } from './constants';
 
 import {
@@ -35,10 +36,6 @@ import NewProject from './components/NewProject';
 import DetailPage from './components/DetailPage';
 import BookTextModal from './components/BookTextModal';
 
-/*
- * Polyfill structuredClone for environments
- * that don't provide it.
- */
 const structuredClone =
   typeof globalThis !== 'undefined' &&
   typeof globalThis.structuredClone === 'function'
@@ -167,17 +164,29 @@ export default function App() {
    */
 
   const signIn = useCallback(
-    (name, email) => {
+  async (name, email) => {
+    try {
+      const response = await loginApi(email, name);
+
+      // ApiResponse format: { success, message, data, timestamp }
+      const user = response.data;
+
+      localStorage.setItem('authToken', user.token);
+      localStorage.setItem(
+        'authUser',
+        JSON.stringify({ id: user.id, email: user.email, name: user.name }),
+      );
+
       const nextDb = structuredClone(db);
 
       if (!nextDb.users[email]) {
         nextDb.users[email] = {
-          name,
-          email,
+          name: user.name,
+          email: user.email,
           projects: [],
         };
       } else {
-        nextDb.users[email].name = name;
+        nextDb.users[email].name = user.name;
       }
 
       nextDb.currentEmail = email;
@@ -185,19 +194,27 @@ export default function App() {
       persist(nextDb);
 
       navigate('#/projects');
-    },
-    [db, persist],
-  );
+    } catch (error) {
+      console.error('Authentication failed:', error);
+
+      throw new Error(
+        error?.response?.data?.message || error?.message || 'Login failed. Please try again.',
+      );
+    }
+  },
+  [db, persist],
+);
 
   const signOut = useCallback(() => {
-    const nextDb = structuredClone(db);
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('authUser');
 
-    nextDb.currentEmail = null;
+  const nextDb = structuredClone(db);
+  nextDb.currentEmail = null;
+  persist(nextDb);
 
-    persist(nextDb);
-
-    navigate('#/');
-  }, [db, persist]);
+  navigate('#/');
+}, [db, persist]);
 
   /*
    * ---------------------------------------------------------
@@ -796,11 +813,7 @@ export default function App() {
         onSignOut={signOut}
       />
 
-      {route.name === 'list' && (
-        <ProjectList
-          user={currentUser}
-        />
-      )}
+      {route.name === 'list' && <ProjectList />}
 
       {route.name === 'new' && (
         <NewProject

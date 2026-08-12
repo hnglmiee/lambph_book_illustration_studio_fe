@@ -14,18 +14,22 @@ export default function AuthCard({ onSignIn }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
-  const submit = () => {
-    const cleanName = name.trim();
-    const cleanEmail = email.trim().toLowerCase();
+  const submit = async () => {
+  const cleanName = name.trim();
+  const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanName || !cleanEmail || !cleanEmail.includes('@')) {
-      setError('Enter your name and a valid email to continue.');
-      return;
-    }
+  if (!cleanName || !cleanEmail || !cleanEmail.includes('@')) {
+    setError('Enter your name and a valid email to continue.');
+    return;
+  }
 
-    setError('');
-    onSignIn(cleanName, cleanEmail);
-  };
+  setError('');
+  try {
+    await onSignIn(cleanName, cleanEmail);
+  } catch (err) {
+    setError(err.message || 'Login failed. Please try again.');
+  }
+};
 
   return (
     <Box

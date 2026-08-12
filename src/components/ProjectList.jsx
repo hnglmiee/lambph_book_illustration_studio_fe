@@ -1,9 +1,36 @@
-import { Box, Button, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Button, Typography, CircularProgress, Alert } from '@mui/material';
 
 import { navigate } from '../routing';
+import { listProjectsApi } from '../api/projectApi';
 import ProjectRow from './ProjectRow';
 
-export default function ProjectList({ user }) {
+export default function ProjectList() {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchProjects = async () => {
+  setLoading(true);
+  setError('');
+  try {
+    const response = await listProjectsApi();
+    console.log('API response:', response); // TẠM THỜI để debug
+    setProjects(response.data || []);
+  } catch (err) {
+    console.error('API error:', err); // TẠM THỜI
+    setError(
+      err?.response?.data?.message || err.message || 'Failed to load projects.',
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   const handleNewProject = () => {
     navigate('#/projects/new');
   };
@@ -20,12 +47,7 @@ export default function ProjectList({ user }) {
         py: { xs: 3, sm: 4 },
       }}
     >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 1100,
-        }}
-      >
+      <Box sx={{ width: '100%', maxWidth: 1100 }}>
         {/* Header */}
         <Box
           sx={{
@@ -38,11 +60,7 @@ export default function ProjectList({ user }) {
         >
           <Typography
             component="h1"
-            sx={{
-              fontSize: { xs: 24, sm: 28 },
-              fontWeight: 700,
-              lineHeight: 1.2,
-            }}
+            sx={{ fontSize: { xs: 24, sm: 28 }, fontWeight: 700, lineHeight: 1.2 }}
           >
             Your projects
           </Typography>
@@ -64,8 +82,30 @@ export default function ProjectList({ user }) {
           </Button>
         </Box>
 
+        {/* Loading state */}
+        {loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress size={28} />
+          </Box>
+        )}
+
+        {/* Error state */}
+        {!loading && error && (
+          <Alert
+            severity="error"
+            action={
+              <Button color="inherit" size="small" onClick={fetchProjects}>
+                Retry
+              </Button>
+            }
+            sx={{ mb: 2 }}
+          >
+            {error}
+          </Alert>
+        )}
+
         {/* Empty state */}
-        {!user.projects.length ? (
+        {!loading && !error && projects.length === 0 && (
           <Box
             sx={{
               minHeight: 200,
@@ -81,13 +121,7 @@ export default function ProjectList({ user }) {
               backgroundColor: 'background.paper',
             }}
           >
-            <Typography
-              sx={{
-                fontSize: 14,
-                color: 'text.secondary',
-                mb: 2,
-              }}
-            >
+            <Typography sx={{ fontSize: 14, color: 'text.secondary', mb: 2 }}>
               No projects yet.
             </Typography>
 
@@ -106,20 +140,13 @@ export default function ProjectList({ user }) {
               + New project
             </Button>
           </Box>
-        ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1.2,
-            }}
-          >
-            {user.projects.map((project, index) => (
-              <ProjectRow
-                key={project.id}
-                project={project}
-                index={index}
-              />
+        )}
+
+        {/* Project rows */}
+        {!loading && !error && projects.length > 0 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+            {projects.map((project, index) => (
+              <ProjectRow key={project.id} project={project} index={index} />
             ))}
           </Box>
         )}
