@@ -44,3 +44,13 @@ export const CAPTION_MAP = {
   CHAPTERS: 'Analyzing the book chapters',
   ILLUSTRATIONS: 'Generating chapter illustrations',
 };
+
+// Backend project.status values, theo đúng thứ tự pipeline
+export const PROJECT_STATUS_ORDER = [
+  'CREATED',
+  'STYLE_SET',
+  'CHARACTERS_GENERATED',
+  'PORTRAITS_GENERATED',
+  'CHAPTERS_GENERATED',
+  'DONE',
+];

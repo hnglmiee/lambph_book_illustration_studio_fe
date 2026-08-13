@@ -815,30 +815,9 @@ export default function App() {
 
       {route.name === 'list' && <ProjectList />}
 
-      {route.name === 'new' && (
-        <NewProject
-          onCreateProject={
-            createProject
-          }
-        />
-      )}
+      {route.name === 'new' && <NewProject />}
 
-      {route.name === 'detail' && (
-        <DetailPage
-          user={currentUser}
-          project={
-            findProject(route.id) ||
-            currentUser.projects[0]
-          }
-          onRunStep={runStep}
-          onRetry={
-            retryStuckStep
-          }
-          onOpenBook={
-            setModalProjectId
-          }
-        />
-      )}
+      {route.name === 'detail' && (<DetailPage user={currentUser} onOpenBook={setModalProjectId} />)}
 
       <AppFooter />
 

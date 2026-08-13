@@ -13,23 +13,26 @@ export default function AuthCard({ onSignIn }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const submit = async () => {
-  const cleanName = name.trim();
-  const cleanEmail = email.trim().toLowerCase();
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
 
-  if (!cleanName || !cleanEmail || !cleanEmail.includes('@')) {
-    setError('Enter your name and a valid email to continue.');
-    return;
-  }
+    if (!cleanName || !cleanEmail || !cleanEmail.includes('@')) {
+      setError('Enter your name and a valid email to continue.');
+      return;
+    }
 
-  setError('');
-  try {
-    await onSignIn(cleanName, cleanEmail);
-  } catch (err) {
-    setError(err.message || 'Login failed. Please try again.');
-  }
-};
+    setError('');
+    setSubmitting(true);
+    try {
+      await onSignIn(cleanName, cleanEmail);
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Box
@@ -179,6 +182,7 @@ export default function AuthCard({ onSignIn }) {
           fullWidth
           variant="contained"
           onClick={submit}
+          disabled={submitting}
           sx={{
             height: 46,
             borderRadius: 2,

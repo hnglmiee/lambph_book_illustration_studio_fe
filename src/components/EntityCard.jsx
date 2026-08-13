@@ -91,18 +91,22 @@ export default function EntityCard({ item, kind, generating, index }) {
           {item.name || item.title || `Item ${index + 1}`}
         </Typography>
 
-        {(item.description || item.summary) && (
+        {(item.description || item.summary || item.prompt) && (
           <Typography
             sx={{
               mt: 0.7,
               color: 'text.secondary',
               fontSize: 13.5,
               lineHeight: 1.55,
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
             }}
           >
-            {item.description || item.summary}
-          </Typography>
-        )}
+    {item.description || item.summary || item.prompt}
+        </Typography>
+      )}
       </Box>
     </Box>
   );

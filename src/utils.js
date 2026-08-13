@@ -1,7 +1,10 @@
 import { STATUS_ORDER } from './constants';
+import { PROJECT_STATUS_ORDER } from './constants';
+
 
 export function statusIndex(status) {
-  return STATUS_ORDER.indexOf(status);
+  // return STATUS_ORDER.indexOf(status);
+  return PROJECT_STATUS_ORDER.indexOf(status);
 }
 
 export function snippet(text, n) {

@@ -17,7 +17,8 @@ export function getRoute(currentUser) {
     return { name: 'new' };
   }
 
-  const match = hash.match(/^projects\/([a-z0-9]+)$/);
+  // Sửa: chấp nhận UUID (hex + dấu gạch ngang), trước đây chỉ khớp [a-z0-9]
+  const match = hash.match(/^projects\/([0-9a-fA-F-]{36})$/);
 
   if (match) {
     return {
